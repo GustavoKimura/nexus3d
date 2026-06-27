@@ -159,6 +159,22 @@ function App() {
     }
   };
 
+  const handleLoadSample = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    try {
+      const response = await fetch(`${API_URL}/sample`);
+      if (!response.ok) throw new Error("Sample file not found");
+      const blob = await response.blob();
+      const sampleFile = new File([blob], "sample_scan.txt", {
+        type: "text/plain",
+      });
+      setFile(sampleFile);
+      toast.success(t("sample_loaded"));
+    } catch (error) {
+      toast.error(t("error"));
+    }
+  };
+
   const handleProcessScan = async () => {
     if (!robotId || !file) return;
     setUploading(true);
@@ -455,6 +471,16 @@ function App() {
               >
                 {file ? file.name : t("drag_drop")}
               </p>
+
+              {!file && (
+                <button
+                  type="button"
+                  onClick={handleLoadSample}
+                  className="mt-6 px-4 py-2 bg-slate-800 hover:bg-slate-700 text-cyan-400 text-xs font-semibold rounded-lg border border-slate-700 transition-colors z-10 shadow-sm"
+                >
+                  {t("use_sample")}
+                </button>
+              )}
             </div>
 
             <button

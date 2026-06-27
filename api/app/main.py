@@ -2,6 +2,7 @@ import os
 import logging
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, Depends, UploadFile, File, Form, HTTPException
+from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 
@@ -37,6 +38,24 @@ def get_db():
         yield db
     finally:
         db.close()
+
+
+@app.get("/sample")
+def get_sample_file():
+    possible_paths = [
+        "samples/sample_scan.txt",
+        "/app/samples/sample_scan.txt",
+        "../samples/sample_scan.txt",
+        "../api/samples/sample_scan.txt",
+        "api/samples/sample_scan.txt",
+    ]
+    for path in possible_paths:
+        if os.path.exists(path):
+            return FileResponse(
+                path=path, filename="sample_scan.txt", media_type="text/plain"
+            )
+
+    raise HTTPException(status_code=404, detail="Sample file not found on the server.")
 
 
 @app.post("/robots", response_model=schemas.RobotResponse)
