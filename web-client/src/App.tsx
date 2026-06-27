@@ -20,6 +20,7 @@ import {
   Edit2,
   Bot,
   Save,
+  AlertTriangle,
 } from "lucide-react";
 import PointCloudViewer from "./components/PointCloudViewer";
 
@@ -59,6 +60,13 @@ function App() {
     location: "",
   });
   const [isSaving, setIsSaving] = useState(false);
+
+  const [confirmModal, setConfirmModal] = useState<{
+    isOpen: boolean;
+    title: string;
+    message: string;
+    onConfirm: () => void;
+  }>({ isOpen: false, title: "", message: "", onConfirm: () => {} });
 
   const [file, setFile] = useState<File | null>(null);
   const [fileContent, setFileContent] = useState<string | null>(null);
@@ -133,9 +141,18 @@ function App() {
     }
   };
 
-  const handleDeleteRobot = async (e: React.MouseEvent, id: number) => {
+  const triggerDeleteRobot = (e: React.MouseEvent, id: number) => {
     e.stopPropagation();
-    if (!window.confirm(t("confirm_delete"))) return;
+    setConfirmModal({
+      isOpen: true,
+      title: t("delete_robot_title"),
+      message: t("confirm_delete"),
+      onConfirm: () => executeDeleteRobot(id),
+    });
+  };
+
+  const executeDeleteRobot = async (id: number) => {
+    setConfirmModal((prev) => ({ ...prev, isOpen: false }));
     try {
       await axios.delete(`${API_URL}/robots/${id}`);
       toast.success(t("delete_success"));
@@ -354,7 +371,7 @@ function App() {
                           <Edit2 className="w-4 h-4" />
                         </button>
                         <button
-                          onClick={(e) => handleDeleteRobot(e, robot.id)}
+                          onClick={(e) => triggerDeleteRobot(e, robot.id)}
                           className="p-2 bg-slate-800 hover:bg-red-950 text-slate-400 hover:text-red-400 rounded-lg transition-colors cursor-pointer"
                         >
                           <Trash2 className="w-4 h-4" />
@@ -566,6 +583,7 @@ function App() {
         </button>
       </nav>
 
+      {/* Main Registration Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4 animate-in fade-in duration-200">
           <div className="bg-slate-900 border border-slate-800 rounded-3xl w-full max-w-md shadow-2xl flex flex-col overflow-hidden max-h-[90dvh]">
@@ -667,6 +685,45 @@ function App() {
                   <Save className="w-4 h-4" />
                 )}
                 {t("save")}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Generic Confirmation Modal */}
+      {confirmModal.isOpen && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+          <div className="bg-slate-900 border border-slate-800 rounded-3xl w-full max-w-sm shadow-2xl flex flex-col overflow-hidden">
+            <div className="p-6 flex flex-col items-center text-center space-y-4">
+              <div className="w-16 h-16 bg-red-500/10 rounded-full flex items-center justify-center border border-red-500/20 shrink-0 shadow-[0_0_15px_rgba(239,68,68,0.2)]">
+                <AlertTriangle className="w-8 h-8 text-red-500" />
+              </div>
+              <div>
+                <h2 className="text-xl font-bold text-slate-100">
+                  {confirmModal.title}
+                </h2>
+                <p className="text-slate-400 mt-2 text-sm">
+                  {confirmModal.message}
+                </p>
+              </div>
+            </div>
+            <div className="p-5 border-t border-slate-800 bg-slate-900/50 flex gap-3 shrink-0">
+              <button
+                type="button"
+                onClick={() =>
+                  setConfirmModal((prev) => ({ ...prev, isOpen: false }))
+                }
+                className="flex-1 bg-slate-800 hover:bg-slate-700 text-white font-semibold py-3 px-4 rounded-xl transition-colors cursor-pointer"
+              >
+                {t("cancel")}
+              </button>
+              <button
+                type="button"
+                onClick={confirmModal.onConfirm}
+                className="flex-1 bg-red-600 hover:bg-red-500 text-white font-semibold py-3 px-4 rounded-xl transition-all cursor-pointer shadow-lg shadow-red-900/20"
+              >
+                {t("delete_button")}
               </button>
             </div>
           </div>
