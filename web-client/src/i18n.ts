@@ -44,6 +44,7 @@ const resources = {
       no_results: "No Results Yet",
       no_results_desc:
         "Process a scan in the Scanner tab to view the AI analysis and 3D visualization.",
+      manage_robots_desc: "Manage your active robotic units",
     },
   },
   ja: {
@@ -88,6 +89,7 @@ const resources = {
       no_results: "結果はまだありません",
       no_results_desc:
         "スキャナータブでスキャンを処理すると、AI分析と3D表示が表示されます。",
+      manage_robots_desc: "アクティブなロボットユニットを管理します",
     },
   },
 };

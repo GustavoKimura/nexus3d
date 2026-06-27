@@ -254,7 +254,7 @@ function App() {
             <Activity className="text-cyan-400 w-5 h-5" />
           </div>
           <h1 className="text-lg font-bold bg-linear-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent tracking-tight">
-            Nexus3D
+            {t("title")}
           </h1>
         </div>
         <LangSwitch />
@@ -266,7 +266,7 @@ function App() {
             <Activity className="text-cyan-400 w-6 h-6" />
           </div>
           <h1 className="text-2xl font-bold bg-linear-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent tracking-tight">
-            Nexus3D
+            {t("title")}
           </h1>
         </div>
 
@@ -309,7 +309,7 @@ function App() {
                 {t("directory")}
               </h2>
               <p className="text-slate-500 text-sm mt-1">
-                Manage your active robotic units
+                {t("manage_robots_desc")}
               </p>
             </div>
             <button
