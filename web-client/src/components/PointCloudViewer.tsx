@@ -12,7 +12,7 @@ export default function PointCloudViewer({ data }: { data: string }) {
     let count = 0;
 
     for (const line of lines) {
-      if (count >= 10000) break;
+      if (count >= 15000) break;
       const parts = line.trim().split(/\s+/);
       if (parts.length >= 3) {
         const x = parseFloat(parts[0]);
@@ -35,7 +35,7 @@ export default function PointCloudViewer({ data }: { data: string }) {
   }, [positions]);
 
   return (
-    <div className="w-full h-96 bg-slate-950 rounded-xl overflow-hidden border border-slate-800 shadow-inner">
+    <div className="w-full h-full bg-slate-950/80 rounded-2xl overflow-hidden border border-slate-800 shadow-inner relative flex-1 min-h-0">
       <Canvas camera={{ position: [0, 5, 15], fov: 60 }}>
         <ambientLight intensity={0.5} />
         <pointLight position={[10, 10, 10]} intensity={1} />
