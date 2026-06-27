@@ -1,7 +1,7 @@
 import os
 import logging
 from contextlib import asynccontextmanager
-from fastapi import FastAPI, Depends, UploadFile, File, HTTPException
+from fastapi import FastAPI, Depends, UploadFile, File, Form, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 
@@ -52,13 +52,16 @@ def create_robot(robot: schemas.RobotCreate, db: Session = Depends(get_db)):
         return db_robot
     except Exception as e:
         db.rollback()
-        logger.error(f"Erro ao criar robô: {str(e)}", exc_info=True)
+        logger.error(f"Error creating robot: {str(e)}", exc_info=True)
         raise HTTPException(status_code=500, detail=str(e))
 
 
 @app.post("/scans/process/{robot_id}", response_model=schemas.ScanLogResponse)
 def process_scan(
-    robot_id: int, file: UploadFile = File(...), db: Session = Depends(get_db)
+    robot_id: int,
+    file: UploadFile = File(...),
+    language: str = Form("en"),
+    db: Session = Depends(get_db),
 ):
     try:
         robot = db.query(models.Robot).filter(models.Robot.id == robot_id).first()
@@ -66,7 +69,6 @@ def process_scan(
             raise HTTPException(status_code=404, detail="Robot not found")
 
         file_content = file.file.read()
-
         filename = file.filename if file.filename else "scan.xyz"
         s3_url = upload_to_s3(file_content, filename)
 
@@ -87,8 +89,9 @@ def process_scan(
             valid_count=analysis["valid_points_count"],
             density=analysis["density"],
             bounding_box=analysis["limits"],
+            language=language,
         )
-        logger.info(f"Laudo IA Gerado: {report}")
+        logger.info(f"AI Report Generated: {report}")
 
         db_scan = models.ScanLog(
             robot_id=robot_id,
@@ -105,5 +108,5 @@ def process_scan(
         return db_scan
     except Exception as e:
         db.rollback()
-        logger.error(f"Erro ao processar scan: {str(e)}", exc_info=True)
+        logger.error(f"Error processing scan: {str(e)}", exc_info=True)
         raise HTTPException(status_code=500, detail=str(e))

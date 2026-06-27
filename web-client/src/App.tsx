@@ -77,6 +77,7 @@ function App() {
     setUploading(true);
     const formData = new FormData();
     formData.append("file", file);
+    formData.append("language", i18n.language);
 
     try {
       const res = await axios.post(
@@ -86,7 +87,7 @@ function App() {
       setScanResult(res.data);
       const text = await file.text();
       setFileContent(text);
-      toast.success("Scan processed successfully!");
+      toast.success(t("scan_success"));
     } catch (error) {
       toast.error(t("error"));
     } finally {
@@ -116,13 +117,31 @@ function App() {
             Nexus3D
           </h1>
         </div>
-        <button
-          onClick={toggleLanguage}
-          className="flex items-center gap-2 px-4 py-2 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-full transition-all text-sm font-medium"
-        >
+
+        <div className="flex items-center gap-4 bg-slate-800/50 px-4 py-2 rounded-full border border-slate-700/50">
           <Globe className="w-4 h-4 text-slate-400" />
-          {t("language")}
-        </button>
+          <div className="flex items-center gap-2">
+            <span
+              className={`text-xs font-bold transition-colors ${i18n.language === "en" ? "text-cyan-400" : "text-slate-500"}`}
+            >
+              EN
+            </span>
+            <button
+              type="button"
+              onClick={toggleLanguage}
+              className="relative inline-flex h-5 w-9 items-center rounded-full bg-slate-900 border border-slate-700 transition-colors focus:outline-none focus:ring-2 focus:ring-cyan-500"
+            >
+              <span
+                className={`inline-block h-3 w-3 transform rounded-full bg-cyan-400 transition-transform ${i18n.language === "ja" ? "translate-x-5" : "translate-x-1"}`}
+              />
+            </button>
+            <span
+              className={`text-xs font-bold transition-colors ${i18n.language === "ja" ? "text-cyan-400" : "text-slate-500"}`}
+            >
+              JA
+            </span>
+          </div>
+        </div>
       </header>
 
       <main className="flex-1 max-w-7xl w-full mx-auto p-8 grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -298,7 +317,7 @@ function App() {
                       rel="noreferrer"
                       className="text-sm font-medium text-blue-400 hover:text-blue-300 hover:underline truncate block transition-colors"
                     >
-                      View File
+                      {t("view_file")}
                     </a>
                   </div>
                 </div>
