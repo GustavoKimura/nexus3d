@@ -1,0 +1,9 @@
+fastapi
+uvicorn
+sqlalchemy
+psycopg2-binary
+pydantic
+boto3
+numpy
+openai
+python-multipart
