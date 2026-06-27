@@ -1,5 +1,11 @@
 import { Toaster } from "react-hot-toast";
-import { Activity, Database, Scan, LayoutDashboard } from "lucide-react";
+import {
+  Activity,
+  Database,
+  Scan,
+  LayoutDashboard,
+  Loader2,
+} from "lucide-react";
 import { useAppViewModel } from "./viewmodels/useAppViewModel";
 import { LanguageSwitch } from "./components/LanguageSwitch";
 import { RobotModal, ConfirmModal } from "./components/Modals";
@@ -7,6 +13,34 @@ import { DirectoryTab, ScannerTab, ResultsTab } from "./views/Tabs";
 
 function App() {
   const vm = useAppViewModel();
+
+  if (vm.isInitializing) {
+    return (
+      <div className="h-dvh w-dvw bg-slate-950 flex flex-col items-center justify-center text-center p-6 space-y-8 select-none overflow-hidden">
+        <div className="relative flex items-center justify-center">
+          <div className="absolute w-28 h-28 bg-cyan-500/20 blur-2xl rounded-full animate-pulse"></div>
+          <Loader2 className="w-14 h-14 text-cyan-400 animate-spin relative z-10" />
+        </div>
+        <div className="space-y-4">
+          <p className="text-slate-200 font-bold text-lg md:text-xl tracking-wide animate-pulse">
+            Waking up the server... Please wait.
+            <br />
+            <span className="text-sm font-normal text-slate-500 mt-2 block">
+              (Cold start may take up to 50 seconds)
+            </span>
+          </p>
+          <div className="w-16 h-px bg-slate-800 mx-auto"></div>
+          <p className="text-slate-400 font-medium text-sm md:text-base animate-pulse">
+            サーバーを起動しています... お待ちください。
+            <br />
+            <span className="text-xs font-normal text-slate-600 mt-2 block">
+              （コールドスタートには最大50秒かかる場合があります）
+            </span>
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="h-dvh w-dvw bg-slate-950 text-slate-100 flex flex-col md:flex-row overflow-hidden font-sans selection:bg-cyan-500 selection:text-white">

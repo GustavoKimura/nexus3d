@@ -6,6 +6,7 @@ import type { Robot, ScanResult, TabType } from "../models/types";
 
 export function useAppViewModel() {
   const { t, i18n } = useTranslation();
+  const [isInitializing, setIsInitializing] = useState(true);
   const [activeTab, setActiveTab] = useState<TabType>("directory");
   const [robots, setRobots] = useState<Robot[]>([]);
   const [robotId, setRobotId] = useState<number | null>(null);
@@ -44,7 +45,25 @@ export function useAppViewModel() {
   };
 
   useEffect(() => {
-    fetchRobots();
+    let isMounted = true;
+    const wakeUpBackend = async () => {
+      while (isMounted) {
+        try {
+          const res = await api.getRobots();
+          if (isMounted) {
+            setRobots(res.data);
+            setIsInitializing(false);
+            break;
+          }
+        } catch {
+          await new Promise((resolve) => setTimeout(resolve, 5000));
+        }
+      }
+    };
+    wakeUpBackend();
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   const toggleLanguage = () => {
@@ -196,6 +215,7 @@ export function useAppViewModel() {
   return {
     t,
     i18n,
+    isInitializing,
     activeTab,
     setActiveTab,
     robots,
