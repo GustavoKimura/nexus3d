@@ -9,7 +9,7 @@ def process_point_cloud(points: list) -> dict:
         return {
             "valid_points_count": 0,
             "density": 0.0,
-            "anomaly_detected": False,
+            "anomaly_detected": True,
             "limits": {"min": [], "max": []},
         }
 
@@ -30,7 +30,7 @@ def process_point_cloud(points: list) -> dict:
         return {
             "valid_points_count": 0,
             "density": 0.0,
-            "anomaly_detected": False,
+            "anomaly_detected": True,
             "limits": {"min": [], "max": []},
         }
 
@@ -43,7 +43,7 @@ def process_point_cloud(points: list) -> dict:
         "max": bbox.get_max_bound().tolist(),
     }
 
-    anomaly_detected = valid_points_count > 100
+    anomaly_detected = valid_points_count < 100
 
     return {
         "valid_points_count": valid_points_count,

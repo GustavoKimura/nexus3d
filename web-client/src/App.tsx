@@ -23,6 +23,8 @@ interface ScanResult {
   created_at: string;
 }
 
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
+
 function App() {
   const { t, i18n } = useTranslation();
 
@@ -45,7 +47,7 @@ function App() {
   const handleRegisterRobot = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const res = await axios.post("http://localhost:8000/robots", {
+      const res = await axios.post(`${API_URL}/robots`, {
         name: robotName,
         status: robotStatus,
         location: robotLocation,
@@ -72,7 +74,7 @@ function App() {
 
     try {
       const res = await axios.post(
-        `http://localhost:8000/scans/process/${robotId}`,
+        `${API_URL}/scans/process/${robotId}`,
         formData,
       );
       setScanResult(res.data);
