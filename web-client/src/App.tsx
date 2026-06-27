@@ -25,7 +25,6 @@ interface ScanResult {
   robot_id: number;
   point_count: number;
   has_anomaly: boolean;
-  s3_file_url: string;
   ai_report?: string;
   created_at: string;
 }
@@ -510,27 +509,14 @@ function App() {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="bg-slate-950 border border-slate-800 p-4 rounded-xl flex flex-col justify-center">
+                <div className="grid grid-cols-1 gap-4">
+                  <div className="bg-slate-950 border border-slate-800 p-4 rounded-xl flex flex-col items-center justify-center text-center">
                     <span className="block text-xs font-medium text-slate-500 mb-1">
                       {t("valid_points")}
                     </span>
-                    <span className="text-xl font-mono font-semibold text-cyan-400">
+                    <span className="text-2xl font-mono font-semibold text-cyan-400">
                       {scanResult.point_count.toLocaleString()}
                     </span>
-                  </div>
-                  <div className="bg-slate-950 border border-slate-800 p-4 rounded-xl flex flex-col justify-center truncate">
-                    <span className="block text-xs font-medium text-slate-500 mb-1">
-                      {t("s3_url")}
-                    </span>
-                    <a
-                      href={scanResult.s3_file_url}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="text-sm font-medium text-blue-400 hover:text-blue-300 hover:underline truncate block transition-colors"
-                    >
-                      {t("view_file")}
-                    </a>
                   </div>
                 </div>
 

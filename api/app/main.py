@@ -7,7 +7,6 @@ from sqlalchemy.orm import Session
 
 from . import models, schemas
 from .database import engine, SessionLocal
-from .services.aws_service import upload_to_s3
 from .services.cloud_proc import process_point_cloud
 from .services.ai_service import generate_technical_report
 
@@ -106,8 +105,6 @@ def process_scan(
             raise HTTPException(status_code=404, detail="Robot not found")
 
         file_content = file.file.read()
-        filename = file.filename if file.filename else "scan.xyz"
-        s3_url = upload_to_s3(file_content, filename)
 
         lines = file_content.decode("utf-8", errors="ignore").splitlines()
         points = []
@@ -134,7 +131,6 @@ def process_scan(
             robot_id=robot_id,
             point_count=analysis["valid_points_count"],
             has_anomaly=analysis["anomaly_detected"],
-            s3_file_url=s3_url,
             ai_report=report,
         )
 

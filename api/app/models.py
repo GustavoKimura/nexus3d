@@ -22,7 +22,6 @@ class ScanLog(Base):
     robot_id = Column(Integer, ForeignKey("robots.id"))
     point_count = Column(Integer)
     has_anomaly = Column(Boolean, default=False)
-    s3_file_url = Column(String)
     ai_report = Column(String, nullable=True)
     created_at = Column(DateTime, server_default=func.now())
 

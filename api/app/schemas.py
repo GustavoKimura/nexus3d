@@ -6,7 +6,6 @@ from typing import List, Optional
 class ScanLogBase(BaseModel):
     point_count: int
     has_anomaly: bool
-    s3_file_url: str
     ai_report: Optional[str] = None
 
 
