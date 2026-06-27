@@ -5,11 +5,12 @@ import {
   Scan,
   LayoutDashboard,
   Loader2,
+  ClipboardList,
 } from "lucide-react";
 import { useAppViewModel } from "./viewmodels/useAppViewModel";
 import { LanguageSwitch } from "./components/LanguageSwitch";
 import { RobotModal, ConfirmModal } from "./components/Modals";
-import { DirectoryTab, ScannerTab, ResultsTab } from "./views/Tabs";
+import { DirectoryTab, ScannerTab, ResultsTab, LogsTab } from "./views/Tabs";
 
 function App() {
   const vm = useAppViewModel();
@@ -101,6 +102,13 @@ function App() {
             <LayoutDashboard className="w-5 h-5" />
             <span className="font-semibold">{vm.t("dashboard")}</span>
           </button>
+          <button
+            onClick={() => vm.setActiveTab("logs")}
+            className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all cursor-pointer ${vm.activeTab === "logs" ? "bg-cyan-950/40 text-cyan-400 border border-cyan-900/50" : "text-slate-400 hover:bg-slate-800 hover:text-slate-200 border border-transparent"}`}
+          >
+            <ClipboardList className="w-5 h-5" />
+            <span className="font-semibold">{vm.t("logs")}</span>
+          </button>
         </div>
         <div className="p-4 border-t border-slate-800/50 flex justify-center">
           <LanguageSwitch
@@ -114,6 +122,7 @@ function App() {
         <DirectoryTab vm={vm} />
         <ScannerTab vm={vm} />
         <ResultsTab vm={vm} />
+        <LogsTab vm={vm} />
       </main>
 
       <nav className="md:hidden h-16 shrink-0 flex items-center justify-around bg-slate-900 border-t border-slate-800 z-40 px-2 pb-safe">
@@ -137,6 +146,13 @@ function App() {
         >
           <LayoutDashboard className="w-5 h-5" />
           <span className="text-[10px] font-bold">{vm.t("dashboard")}</span>
+        </button>
+        <button
+          onClick={() => vm.setActiveTab("logs")}
+          className={`flex flex-col items-center justify-center w-full h-full space-y-1 transition-colors ${vm.activeTab === "logs" ? "text-cyan-400" : "text-slate-500"}`}
+        >
+          <ClipboardList className="w-5 h-5" />
+          <span className="text-[10px] font-bold">{vm.t("logs")}</span>
         </button>
       </nav>
 

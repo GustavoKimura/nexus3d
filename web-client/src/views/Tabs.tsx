@@ -11,6 +11,9 @@ import {
   LayoutDashboard,
   AlertCircle,
   CheckCircle2,
+  ClipboardList,
+  Calendar,
+  Hash,
 } from "lucide-react";
 import PointCloudViewer from "../components/PointCloudViewer";
 
@@ -263,6 +266,81 @@ export function ResultsTab({ vm }: { vm: any }) {
           </div>
         </div>
       )}
+    </div>
+  );
+}
+
+export function LogsTab({ vm }: { vm: any }) {
+  const allLogs = vm.robots
+    .flatMap((r: any) =>
+      (r.scan_logs || []).map((log: any) => ({
+        ...log,
+        robotName: r.name,
+      })),
+    )
+    .sort(
+      (a: any, b: any) =>
+        new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
+    );
+
+  return (
+    <div
+      className={`absolute inset-0 flex flex-col p-4 md:p-8 transition-opacity duration-300 ${vm.activeTab === "logs" ? "opacity-100 z-10" : "opacity-0 pointer-events-none z-0"}`}
+    >
+      <div className="flex items-center justify-between mb-6 shrink-0">
+        <h2 className="text-2xl font-bold text-slate-100">
+          {vm.t("scan_history")}
+        </h2>
+      </div>
+      <div className="flex-1 overflow-y-auto no-scrollbar pb-20 md:pb-0">
+        {allLogs.length === 0 ? (
+          <div className="flex flex-col items-center justify-center h-full text-slate-500 space-y-4">
+            <ClipboardList className="w-16 h-16 opacity-20" />
+            <p>{vm.t("no_logs")}</p>
+          </div>
+        ) : (
+          <div className="flex flex-col gap-4">
+            {allLogs.map((log: any) => (
+              <div
+                key={log.id}
+                className="bg-slate-900/50 border border-slate-800 rounded-2xl p-5 flex flex-col md:flex-row gap-5 hover:border-slate-700 transition-colors shadow-sm"
+              >
+                <div className="flex flex-col gap-2 min-w-[220px] shrink-0 border-b md:border-b-0 md:border-r border-slate-800/80 pb-4 md:pb-0 md:pr-4">
+                  <span className="text-cyan-400 font-bold text-lg truncate">
+                    {log.robotName}
+                  </span>
+                  <span className="text-slate-500 text-xs flex items-center gap-1.5 font-medium">
+                    <Calendar className="w-3 h-3 text-slate-400" />
+                    {new Date(log.created_at).toLocaleString(vm.i18n.language)}
+                  </span>
+                  <span className="text-slate-400 text-sm font-medium flex items-center gap-1.5">
+                    <Hash className="w-3 h-3 text-slate-500" />
+                    {log.point_count.toLocaleString()} {vm.t("valid_points")}
+                  </span>
+                </div>
+                <div className="flex-1 relative flex flex-col justify-center">
+                  <div className="absolute top-0 right-0">
+                    {log.has_anomaly ? (
+                      <AlertCircle className="w-5 h-5 text-red-500/80" />
+                    ) : (
+                      <CheckCircle2 className="w-5 h-5 text-emerald-500/80" />
+                    )}
+                  </div>
+                  <h4
+                    className={`text-[10px] font-black mb-1.5 uppercase tracking-wider ${log.has_anomaly ? "text-red-400" : "text-emerald-400"}`}
+                  >
+                    {log.has_anomaly ? vm.t("anomaly") : vm.t("no_anomaly")}
+                  </h4>
+                  <p className="text-slate-300 text-sm leading-relaxed pr-8 line-clamp-3">
+                    {log.ai_report ||
+                      (log.has_anomaly ? vm.t("anomaly") : vm.t("no_anomaly"))}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 }

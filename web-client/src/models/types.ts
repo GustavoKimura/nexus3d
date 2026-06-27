@@ -12,6 +12,7 @@ export interface Robot {
   name: string;
   status: string;
   location: string;
+  scan_logs?: ScanResult[];
 }
 
-export type TabType = "directory" | "scanner" | "results";
+export type TabType = "directory" | "scanner" | "results" | "logs";

@@ -210,6 +210,7 @@ export function useAppViewModel() {
       setFileContent(text);
       toast.success(t("scan_success"));
       setActiveTab("results");
+      fetchRobots();
     } catch {
       toast.error(t("error"));
     } finally {
