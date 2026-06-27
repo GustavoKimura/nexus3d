@@ -32,6 +32,12 @@ class RobotCreate(RobotBase):
     pass
 
 
+class RobotUpdate(BaseModel):
+    name: Optional[str] = None
+    status: Optional[str] = None
+    location: Optional[str] = None
+
+
 class RobotResponse(RobotBase):
     id: int
     scan_logs: List[ScanLogResponse] = []

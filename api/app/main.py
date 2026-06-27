@@ -56,6 +56,43 @@ def create_robot(robot: schemas.RobotCreate, db: Session = Depends(get_db)):
         raise HTTPException(status_code=500, detail=str(e))
 
 
+@app.get("/robots", response_model=list[schemas.RobotResponse])
+def get_robots(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
+    robots = db.query(models.Robot).offset(skip).limit(limit).all()
+    return robots
+
+
+@app.put("/robots/{robot_id}", response_model=schemas.RobotResponse)
+def update_robot(
+    robot_id: int, robot: schemas.RobotUpdate, db: Session = Depends(get_db)
+):
+    db_robot = db.query(models.Robot).filter(models.Robot.id == robot_id).first()
+    if not db_robot:
+        raise HTTPException(status_code=404, detail="Robot not found")
+
+    if robot.name is not None:
+        setattr(db_robot, "name", robot.name)
+    if robot.status is not None:
+        setattr(db_robot, "status", robot.status)
+    if robot.location is not None:
+        setattr(db_robot, "location", robot.location)
+
+    db.commit()
+    db.refresh(db_robot)
+    return db_robot
+
+
+@app.delete("/robots/{robot_id}")
+def delete_robot(robot_id: int, db: Session = Depends(get_db)):
+    db_robot = db.query(models.Robot).filter(models.Robot.id == robot_id).first()
+    if not db_robot:
+        raise HTTPException(status_code=404, detail="Robot not found")
+
+    db.delete(db_robot)
+    db.commit()
+    return {"detail": "Robot deleted successfully"}
+
+
 @app.post("/scans/process/{robot_id}", response_model=schemas.ScanLogResponse)
 def process_scan(
     robot_id: int,
