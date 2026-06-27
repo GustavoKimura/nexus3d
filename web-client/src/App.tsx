@@ -1,6 +1,7 @@
 import React, { useState, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import axios from "axios";
+import toast, { Toaster } from "react-hot-toast";
 import {
   Globe,
   Bot,
@@ -10,6 +11,7 @@ import {
   AlertCircle,
   FileText,
   Database,
+  Loader2,
 } from "lucide-react";
 import PointCloudViewer from "./components/PointCloudViewer";
 
@@ -36,6 +38,7 @@ function App() {
   const [file, setFile] = useState<File | null>(null);
   const [fileContent, setFileContent] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
+  const [isRegistering, setIsRegistering] = useState(false);
   const [scanResult, setScanResult] = useState<ScanResult | null>(null);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -46,6 +49,7 @@ function App() {
 
   const handleRegisterRobot = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsRegistering(true);
     try {
       const res = await axios.post(`${API_URL}/robots`, {
         name: robotName,
@@ -53,9 +57,11 @@ function App() {
         location: robotLocation,
       });
       setRobotId(res.data.id);
-      alert(t("success"));
+      toast.success(t("success"));
     } catch (error) {
-      alert(t("error"));
+      toast.error(t("error"));
+    } finally {
+      setIsRegistering(false);
     }
   };
 
@@ -80,8 +86,9 @@ function App() {
       setScanResult(res.data);
       const text = await file.text();
       setFileContent(text);
+      toast.success("Scan processed successfully!");
     } catch (error) {
-      alert(t("error"));
+      toast.error(t("error"));
     } finally {
       setUploading(false);
     }
@@ -89,6 +96,17 @@ function App() {
 
   return (
     <div className="min-h-screen flex flex-col font-sans">
+      <Toaster
+        position="top-right"
+        toastOptions={{
+          style: {
+            background: "#0f172a",
+            color: "#f8fafc",
+            border: "1px solid #1e293b",
+          },
+        }}
+      />
+
       <header className="bg-slate-900 border-b border-slate-800 px-8 py-5 flex items-center justify-between sticky top-0 z-50">
         <div className="flex items-center gap-3">
           <div className="bg-cyan-500/10 p-2 rounded-lg border border-cyan-500/20">
@@ -126,7 +144,8 @@ function App() {
                 value={robotName}
                 onChange={(e) => setRobotName(e.target.value)}
                 required
-                className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-slate-200 focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 transition-all"
+                disabled={isRegistering}
+                className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-slate-200 focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 transition-all disabled:opacity-50"
               />
             </div>
 
@@ -140,7 +159,8 @@ function App() {
                   value={robotStatus}
                   onChange={(e) => setRobotStatus(e.target.value)}
                   required
-                  className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-slate-200 focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 transition-all"
+                  disabled={isRegistering}
+                  className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-slate-200 focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 transition-all disabled:opacity-50"
                 />
               </div>
               <div>
@@ -152,16 +172,22 @@ function App() {
                   value={robotLocation}
                   onChange={(e) => setRobotLocation(e.target.value)}
                   required
-                  className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-slate-200 focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 transition-all"
+                  disabled={isRegistering}
+                  className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-slate-200 focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 transition-all disabled:opacity-50"
                 />
               </div>
             </div>
 
             <button
               type="submit"
-              className="w-full mt-4 bg-linear-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-semibold py-3 px-6 rounded-xl transition-all flex items-center justify-center gap-2 shadow-lg shadow-cyan-900/20"
+              disabled={isRegistering}
+              className="w-full mt-4 bg-linear-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-semibold py-3 px-6 rounded-xl transition-all flex items-center justify-center gap-2 shadow-lg shadow-cyan-900/20 disabled:opacity-70 disabled:cursor-not-allowed"
             >
-              <CheckCircle2 className="w-5 h-5" />
+              {isRegistering ? (
+                <Loader2 className="w-5 h-5 animate-spin" />
+              ) : (
+                <CheckCircle2 className="w-5 h-5" />
+              )}
               {t("register")}
             </button>
           </form>
@@ -182,16 +208,21 @@ function App() {
               onDragOver={(e) => e.preventDefault()}
               onDrop={handleFileDrop}
               onClick={() => fileInputRef.current?.click()}
-              className="border-2 border-dashed border-slate-700 bg-slate-950/50 hover:bg-slate-800/80 cursor-pointer rounded-xl p-10 flex flex-col items-center justify-center transition-all group"
+              className={`border-2 border-dashed rounded-xl p-10 flex flex-col items-center justify-center transition-all group cursor-pointer ${file ? "border-cyan-500/50 bg-cyan-950/20" : "border-slate-700 bg-slate-950/50 hover:bg-slate-800/80"}`}
             >
               <input
                 type="file"
                 ref={fileInputRef}
                 className="hidden"
                 onChange={(e) => setFile(e.target.files?.[0] || null)}
+                accept=".xyz,.txt"
               />
-              <Database className="w-10 h-10 text-slate-500 group-hover:text-cyan-400 mb-4 transition-colors" />
-              <p className="text-slate-400 font-medium text-center text-sm">
+              <Database
+                className={`w-10 h-10 mb-4 transition-colors ${file ? "text-cyan-400" : "text-slate-500 group-hover:text-cyan-400"}`}
+              />
+              <p
+                className={`font-medium text-center text-sm ${file ? "text-cyan-300" : "text-slate-400"}`}
+              >
                 {file ? file.name : t("drag_drop")}
               </p>
             </div>
@@ -202,7 +233,7 @@ function App() {
               className="w-full mt-6 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 font-semibold py-3 px-6 rounded-xl transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {uploading ? (
-                <Activity className="w-5 h-5 animate-spin" />
+                <Loader2 className="w-5 h-5 animate-spin text-cyan-400" />
               ) : (
                 <FileText className="w-5 h-5" />
               )}
@@ -218,39 +249,46 @@ function App() {
 
               <div className="space-y-6">
                 <div
-                  className={`p-4 rounded-xl border flex items-start gap-4 ${scanResult.has_anomaly ? "bg-red-500/10 border-red-500/20" : "bg-emerald-500/10 border-emerald-500/20"}`}
+                  className={`p-5 rounded-xl border flex items-start gap-4 ${scanResult.has_anomaly ? "bg-red-950/30 border-red-500/30" : "bg-emerald-950/30 border-emerald-500/30"}`}
                 >
                   {scanResult.has_anomaly ? (
                     <AlertCircle className="w-6 h-6 text-red-400 mt-1 shrink-0" />
                   ) : (
                     <CheckCircle2 className="w-6 h-6 text-emerald-400 mt-1 shrink-0" />
                   )}
-                  <div>
-                    <h3 className="font-semibold text-slate-200 mb-1">
-                      {t("ai_report")}
-                    </h3>
+                  <div className="flex-1">
+                    <div className="flex items-center justify-between mb-2">
+                      <h3 className="font-semibold text-slate-200">
+                        {t("ai_report")}
+                      </h3>
+                      <span
+                        className={`px-3 py-1 text-xs font-bold rounded-full ${scanResult.has_anomaly ? "bg-red-500/20 text-red-400" : "bg-emerald-500/20 text-emerald-400"}`}
+                      >
+                        {scanResult.has_anomaly ? t("stop") : t("proceed")}
+                      </span>
+                    </div>
                     <p
-                      className={`text-sm font-medium ${scanResult.has_anomaly ? "text-red-400" : "text-emerald-400"}`}
+                      className={`text-sm leading-relaxed ${scanResult.has_anomaly ? "text-red-300" : "text-emerald-300"}`}
                     >
                       {scanResult.ai_report
                         ? scanResult.ai_report
                         : scanResult.has_anomaly
-                          ? t("stop") + " — " + t("anomaly")
-                          : t("proceed") + " — " + t("no_anomaly")}
+                          ? t("anomaly")
+                          : t("no_anomaly")}
                     </p>
                   </div>
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
-                  <div className="bg-slate-950 border border-slate-800 p-4 rounded-xl">
+                  <div className="bg-slate-950 border border-slate-800 p-4 rounded-xl flex flex-col justify-center">
                     <span className="block text-xs font-medium text-slate-500 mb-1">
                       {t("valid_points")}
                     </span>
-                    <span className="text-lg font-mono text-cyan-400">
+                    <span className="text-xl font-mono font-semibold text-cyan-400">
                       {scanResult.point_count.toLocaleString()}
                     </span>
                   </div>
-                  <div className="bg-slate-950 border border-slate-800 p-4 rounded-xl truncate">
+                  <div className="bg-slate-950 border border-slate-800 p-4 rounded-xl flex flex-col justify-center truncate">
                     <span className="block text-xs font-medium text-slate-500 mb-1">
                       {t("s3_url")}
                     </span>
@@ -258,7 +296,7 @@ function App() {
                       href={scanResult.s3_file_url}
                       target="_blank"
                       rel="noreferrer"
-                      className="text-sm text-blue-400 hover:underline truncate block"
+                      className="text-sm font-medium text-blue-400 hover:text-blue-300 hover:underline truncate block transition-colors"
                     >
                       View File
                     </a>
