@@ -9,3 +9,5 @@ openai
 python-multipart
 open3d
 minio
+pytest
+httpx
