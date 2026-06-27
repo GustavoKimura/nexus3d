@@ -32,6 +32,9 @@ const resources = {
       delete_success: "Robot deleted successfully!",
       confirm_delete: "Are you sure you want to delete this robot?",
       selected: "Selected",
+      online: "Online",
+      offline: "Offline",
+      toggle: "Toggle",
     },
   },
   ja: {
@@ -64,6 +67,9 @@ const resources = {
       delete_success: "ロボットが正常に削除されました！",
       confirm_delete: "このロボットを削除してもよろしいですか？",
       selected: "選択済み",
+      online: "オンライン",
+      offline: "オフライン",
+      toggle: "切替",
     },
   },
 };

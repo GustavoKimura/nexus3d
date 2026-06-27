@@ -278,14 +278,30 @@ function App() {
                   <label className="block text-sm font-medium text-slate-400 mb-1">
                     {t("status")}
                   </label>
-                  <input
-                    type="text"
-                    value={robotStatus}
-                    onChange={(e) => setRobotStatus(e.target.value)}
-                    required
+                  <button
+                    type="button"
                     disabled={isRegistering}
-                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-slate-200 focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 transition-all disabled:opacity-50"
-                  />
+                    onClick={() =>
+                      setRobotStatus((prev) =>
+                        prev === "online" ? "offline" : "online",
+                      )
+                    }
+                    className={`w-full flex items-center justify-between px-4 py-3 rounded-xl border transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed ${
+                      robotStatus === "online"
+                        ? "bg-emerald-950/20 border-emerald-500/50 text-emerald-400"
+                        : "bg-slate-900/50 border-slate-700 text-slate-400"
+                    }`}
+                  >
+                    <span className="flex items-center gap-2 font-medium">
+                      <span
+                        className={`w-2.5 h-2.5 rounded-full ${robotStatus === "online" ? "bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.8)]" : "bg-slate-500"}`}
+                      ></span>
+                      {robotStatus === "online" ? t("online") : t("offline")}
+                    </span>
+                    <span className="text-[10px] uppercase font-bold tracking-wider bg-slate-950 px-2 py-1 rounded-md border border-slate-800">
+                      {t("toggle")}
+                    </span>
+                  </button>
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-slate-400 mb-1">
@@ -305,7 +321,7 @@ function App() {
               <button
                 type="submit"
                 disabled={isRegistering}
-                className="w-full mt-4 bg-linear-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-semibold py-3 px-6 rounded-xl transition-all flex items-center justify-center gap-2 shadow-lg shadow-cyan-900/20 disabled:opacity-70 disabled:cursor-not-allowed"
+                className="w-full mt-4 bg-linear-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-semibold py-3 px-6 rounded-xl transition-all flex items-center justify-center gap-2 shadow-lg shadow-cyan-900/20 cursor-pointer disabled:opacity-70 disabled:cursor-not-allowed"
               >
                 {isRegistering ? (
                   <Loader2 className="w-5 h-5 animate-spin" />
@@ -361,17 +377,31 @@ function App() {
                           className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none focus:border-cyan-500"
                         />
                         <div className="flex gap-2">
-                          <input
-                            type="text"
-                            value={editForm.status}
-                            onChange={(e) =>
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
                               setEditForm({
                                 ...editForm,
-                                status: e.target.value,
-                              })
-                            }
-                            className="w-1/2 bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none focus:border-cyan-500"
-                          />
+                                status:
+                                  editForm.status === "online"
+                                    ? "offline"
+                                    : "online",
+                              });
+                            }}
+                            className={`w-1/2 flex items-center justify-center gap-2 px-3 py-2 rounded-lg border transition-all cursor-pointer ${
+                              editForm.status === "online"
+                                ? "bg-emerald-950/20 border-emerald-500/50 text-emerald-400"
+                                : "bg-slate-900 border-slate-700 text-slate-400"
+                            } text-sm`}
+                          >
+                            <span
+                              className={`w-2 h-2 rounded-full ${editForm.status === "online" ? "bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.8)]" : "bg-slate-500"}`}
+                            ></span>
+                            {editForm.status === "online"
+                              ? t("online")
+                              : t("offline")}
+                          </button>
                           <input
                             type="text"
                             value={editForm.location}
@@ -387,13 +417,13 @@ function App() {
                         <div className="flex justify-end gap-2 mt-2">
                           <button
                             onClick={handleCancelEdit}
-                            className="p-2 bg-slate-800 hover:bg-slate-700 text-slate-400 rounded-lg transition-colors"
+                            className="p-2 bg-slate-800 hover:bg-slate-700 text-slate-400 rounded-lg transition-colors cursor-pointer"
                           >
                             <X className="w-4 h-4" />
                           </button>
                           <button
                             onClick={(e) => handleSaveEdit(e, robot.id)}
-                            className="p-2 bg-cyan-600 hover:bg-cyan-500 text-white rounded-lg transition-colors shadow-lg shadow-cyan-900/20"
+                            className="p-2 bg-cyan-600 hover:bg-cyan-500 text-white rounded-lg transition-colors shadow-lg shadow-cyan-900/20 cursor-pointer"
                           >
                             <Save className="w-4 h-4" />
                           </button>
@@ -409,8 +439,14 @@ function App() {
                           </h3>
                           <div className="flex items-center gap-3 mt-1 text-xs text-slate-500">
                             <span className="flex items-center gap-1">
-                              <span className="w-2 h-2 rounded-full bg-emerald-500/80"></span>
-                              {robot.status}
+                              <span
+                                className={`w-2 h-2 rounded-full ${robot.status === "online" ? "bg-emerald-500/80" : "bg-slate-500/80"}`}
+                              ></span>
+                              {robot.status === "online"
+                                ? t("online")
+                                : robot.status === "offline"
+                                  ? t("offline")
+                                  : robot.status}
                             </span>
                             <span>•</span>
                             <span>{robot.location}</span>
@@ -419,13 +455,13 @@ function App() {
                         <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                           <button
                             onClick={(e) => handleStartEdit(e, robot)}
-                            className="p-2 bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-cyan-400 rounded-lg transition-colors"
+                            className="p-2 bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-cyan-400 rounded-lg transition-colors cursor-pointer"
                           >
                             <Edit2 className="w-4 h-4" />
                           </button>
                           <button
                             onClick={(e) => handleDeleteRobot(e, robot.id)}
-                            className="p-2 bg-slate-800 hover:bg-red-950 text-slate-400 hover:text-red-400 border border-transparent hover:border-red-900/50 rounded-lg transition-colors"
+                            className="p-2 bg-slate-800 hover:bg-red-950 text-slate-400 hover:text-red-400 border border-transparent hover:border-red-900/50 rounded-lg transition-colors cursor-pointer"
                           >
                             <Trash2 className="w-4 h-4" />
                           </button>
@@ -476,7 +512,7 @@ function App() {
                 <button
                   type="button"
                   onClick={handleLoadSample}
-                  className="mt-6 px-4 py-2 bg-slate-800 hover:bg-slate-700 text-cyan-400 text-xs font-semibold rounded-lg border border-slate-700 transition-colors z-10 shadow-sm"
+                  className="mt-6 px-4 py-2 bg-slate-800 hover:bg-slate-700 text-cyan-400 text-xs font-semibold rounded-lg border border-slate-700 transition-colors z-10 shadow-sm cursor-pointer"
                 >
                   {t("use_sample")}
                 </button>
@@ -486,7 +522,7 @@ function App() {
             <button
               onClick={handleProcessScan}
               disabled={uploading || !file}
-              className="w-full mt-6 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 font-semibold py-3 px-6 rounded-xl transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full mt-6 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 font-semibold py-3 px-6 rounded-xl transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {uploading ? (
                 <Loader2 className="w-5 h-5 animate-spin text-cyan-400" />
