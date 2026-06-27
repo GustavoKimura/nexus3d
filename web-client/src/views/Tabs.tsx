@@ -305,7 +305,7 @@ export function LogsTab({ vm }: { vm: any }) {
                 key={log.id}
                 className="bg-slate-900/50 border border-slate-800 rounded-2xl p-5 flex flex-col md:flex-row gap-5 hover:border-slate-700 transition-colors shadow-sm"
               >
-                <div className="flex flex-col gap-2 min-w-[220px] shrink-0 border-b md:border-b-0 md:border-r border-slate-800/80 pb-4 md:pb-0 md:pr-4">
+                <div className="flex flex-col gap-2 min-w-55 shrink-0 border-b md:border-b-0 md:border-r border-slate-800/80 pb-4 md:pb-0 md:pr-4">
                   <span className="text-cyan-400 font-bold text-lg truncate">
                     {log.robotName}
                   </span>
