@@ -23,6 +23,7 @@ export function useAppViewModel() {
 
   const [confirmModal, setConfirmModal] = useState({
     isOpen: false,
+    isLoading: false,
     title: "",
     message: "",
     onConfirm: () => {},
@@ -101,14 +102,18 @@ export function useAppViewModel() {
           status: formData.status,
           location: formData.location,
         });
+        setRobots((prev) => [...prev, { ...res.data, scan_logs: [] }]);
         setRobotId(res.data.id);
         toast.success(t("success"));
       } else {
-        await api.updateRobot(formData.id, {
+        const res = await api.updateRobot(formData.id, {
           name: formData.name,
           status: formData.status,
           location: formData.location,
         });
+        setRobots((prev) =>
+          prev.map((r) => (r.id === formData.id ? { ...r, ...res.data } : r)),
+        );
         toast.success(t("update_success"));
         if (formData.status === "offline" && robotId === formData.id) {
           setRobotId(null);
@@ -119,7 +124,6 @@ export function useAppViewModel() {
         }
       }
       setIsModalOpen(false);
-      fetchRobots();
     } catch {
       toast.error(t("error"));
     } finally {
@@ -131,6 +135,7 @@ export function useAppViewModel() {
     e.stopPropagation();
     setConfirmModal({
       isOpen: true,
+      isLoading: false,
       title: t("delete_robot_title"),
       message: t("confirm_delete"),
       onConfirm: () => executeDeleteRobot(id),
@@ -138,9 +143,10 @@ export function useAppViewModel() {
   };
 
   const executeDeleteRobot = async (id: number) => {
-    setConfirmModal((prev) => ({ ...prev, isOpen: false }));
+    setConfirmModal((prev) => ({ ...prev, isLoading: true }));
     try {
       await api.deleteRobot(id);
+      setRobots((prev) => prev.filter((r) => r.id !== id));
       toast.success(t("delete_success"));
       if (robotId === id) {
         setRobotId(null);
@@ -149,9 +155,10 @@ export function useAppViewModel() {
         setFileContent(null);
         setActiveTab("directory");
       }
-      fetchRobots();
+      setConfirmModal((prev) => ({ ...prev, isOpen: false, isLoading: false }));
     } catch {
       toast.error(t("error"));
+      setConfirmModal((prev) => ({ ...prev, isLoading: false }));
     }
   };
 

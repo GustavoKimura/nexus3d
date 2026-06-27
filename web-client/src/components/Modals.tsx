@@ -134,15 +134,20 @@ export function ConfirmModal({ vm }: { vm: any }) {
             onClick={() =>
               vm.setConfirmModal((prev: any) => ({ ...prev, isOpen: false }))
             }
-            className="flex-1 bg-slate-800 hover:bg-slate-700 text-white font-semibold py-3 px-4 rounded-xl transition-colors cursor-pointer"
+            disabled={vm.confirmModal.isLoading}
+            className="flex-1 bg-slate-800 hover:bg-slate-700 text-white font-semibold py-3 px-4 rounded-xl transition-colors cursor-pointer disabled:opacity-50"
           >
             {vm.t("cancel")}
           </button>
           <button
             type="button"
             onClick={vm.confirmModal.onConfirm}
-            className="flex-1 bg-red-600 hover:bg-red-500 text-white font-semibold py-3 px-4 rounded-xl transition-all cursor-pointer shadow-lg shadow-red-900/20"
+            disabled={vm.confirmModal.isLoading}
+            className="flex-1 bg-red-600 hover:bg-red-500 text-white font-semibold py-3 px-4 rounded-xl transition-all cursor-pointer shadow-lg shadow-red-900/20 flex justify-center items-center gap-2 disabled:opacity-50"
           >
+            {vm.confirmModal.isLoading ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : null}
             {vm.t("delete_button")}
           </button>
         </div>
