@@ -165,9 +165,17 @@ function App() {
       const response = await fetch(`${API_URL}/sample`);
       if (!response.ok) throw new Error("Sample file not found");
       const blob = await response.blob();
-      const sampleFile = new File([blob], "sample_scan.txt", {
-        type: "text/plain",
-      });
+
+      const contentDisposition = response.headers.get("content-disposition");
+      let filename = "generated_sample.xyz";
+      if (contentDisposition) {
+        const filenameMatch = contentDisposition.match(/filename="?([^"]+)"?/);
+        if (filenameMatch && filenameMatch.length > 1) {
+          filename = filenameMatch[1];
+        }
+      }
+
+      const sampleFile = new File([blob], filename, { type: "text/plain" });
       setFile(sampleFile);
       toast.success(t("sample_loaded"));
     } catch (error) {

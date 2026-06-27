@@ -1,7 +1,18 @@
 import os
+import math
+import tempfile
+import random
 import logging
 from contextlib import asynccontextmanager
-from fastapi import FastAPI, Depends, UploadFile, File, Form, HTTPException
+from fastapi import (
+    FastAPI,
+    Depends,
+    UploadFile,
+    File,
+    Form,
+    HTTPException,
+    BackgroundTasks,
+)
 from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
@@ -40,22 +51,47 @@ def get_db():
         db.close()
 
 
-@app.get("/sample")
-def get_sample_file():
-    possible_paths = [
-        "samples/sample_scan.txt",
-        "/app/samples/sample_scan.txt",
-        "../samples/sample_scan.txt",
-        "../api/samples/sample_scan.txt",
-        "api/samples/sample_scan.txt",
-    ]
-    for path in possible_paths:
-        if os.path.exists(path):
-            return FileResponse(
-                path=path, filename="sample_scan.txt", media_type="text/plain"
-            )
+def cleanup_temp_file(path: str):
+    try:
+        os.remove(path)
+    except Exception:
+        pass
 
-    raise HTTPException(status_code=404, detail="Sample file not found on the server.")
+
+@app.get("/sample")
+def get_sample_file(background_tasks: BackgroundTasks):
+    fd, temp_path = tempfile.mkstemp(suffix=".xyz")
+    num_points = 5000
+    shape_type = random.choice(["sphere", "torus", "cube"])
+
+    with os.fdopen(fd, "w") as f:
+        for _ in range(num_points):
+            if shape_type == "sphere":
+                theta = random.uniform(0, 2 * math.pi)
+                phi = math.acos(random.uniform(-1.0, 1.0))
+                r = random.uniform(0.0, 5.0)
+                x = r * math.sin(phi) * math.cos(theta)
+                y = r * math.sin(phi) * math.sin(theta)
+                z = r * math.cos(phi)
+            elif shape_type == "torus":
+                u = random.uniform(0, 2 * math.pi)
+                v = random.uniform(0, 2 * math.pi)
+                major_r = 3.0
+                minor_r = random.uniform(0, 1.0)
+                x = (major_r + minor_r * math.cos(v)) * math.cos(u)
+                y = (major_r + minor_r * math.cos(v)) * math.sin(u)
+                z = minor_r * math.sin(v)
+            else:
+                x = random.uniform(-3.0, 3.0)
+                y = random.uniform(-3.0, 3.0)
+                z = random.uniform(-3.0, 3.0)
+
+            f.write(f"{x:.4f} {y:.4f} {z:.4f}\n")
+
+    background_tasks.add_task(cleanup_temp_file, temp_path)
+    return FileResponse(
+        path=temp_path, filename=f"generated_{shape_type}.xyz", media_type="text/plain"
+    )
 
 
 @app.post("/robots", response_model=schemas.RobotResponse)
