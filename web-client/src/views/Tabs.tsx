@@ -41,9 +41,11 @@ export function DirectoryTab({ vm }: { vm: any }) {
       </div>
       <div className="flex-1 overflow-y-auto no-scrollbar pb-20 md:pb-0">
         {vm.robots.length === 0 ? (
-          <div className="flex flex-col items-center justify-center h-full text-slate-500 space-y-4">
-            <Database className="w-16 h-16 opacity-20" />
-            <p>{vm.t("no_robots")}</p>
+          <div className="flex flex-col items-center justify-center h-full text-slate-500 space-y-6">
+            <div className="w-20 h-20 bg-slate-900 rounded-full flex items-center justify-center border border-slate-800 shadow-xl shadow-black/50">
+              <Database className="w-10 h-10 text-slate-500/50" />
+            </div>
+            <p className="text-slate-400 font-medium">{vm.t("no_robots")}</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -203,7 +205,7 @@ export function ResultsTab({ vm }: { vm: any }) {
       {!vm.scanResult || !vm.fileContent ? (
         <div className="flex flex-col items-center justify-center h-full max-w-md mx-auto text-center space-y-6">
           <div className="w-20 h-20 bg-slate-900 rounded-full flex items-center justify-center border border-slate-800 shadow-xl shadow-black/50">
-            <LayoutDashboard className="w-10 h-10 text-slate-500" />
+            <LayoutDashboard className="w-10 h-10 text-slate-500/50" />
           </div>
           <div>
             <h2 className="text-2xl font-bold text-slate-200 mb-2">
@@ -294,9 +296,11 @@ export function LogsTab({ vm }: { vm: any }) {
       </div>
       <div className="flex-1 overflow-y-auto no-scrollbar pb-20 md:pb-0">
         {allLogs.length === 0 ? (
-          <div className="flex flex-col items-center justify-center h-full text-slate-500 space-y-4">
-            <ClipboardList className="w-16 h-16 opacity-20" />
-            <p>{vm.t("no_logs")}</p>
+          <div className="flex flex-col items-center justify-center h-full text-slate-500 space-y-6">
+            <div className="w-20 h-20 bg-slate-900 rounded-full flex items-center justify-center border border-slate-800 shadow-xl shadow-black/50">
+              <ClipboardList className="w-10 h-10 text-slate-500/50" />
+            </div>
+            <p className="text-slate-400 font-medium">{vm.t("no_logs")}</p>
           </div>
         ) : (
           <div className="flex flex-col gap-4">
