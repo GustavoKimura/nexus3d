@@ -140,8 +140,10 @@ export function ScannerTab({ vm }: { vm: any }) {
           <div
             onDragOver={(e) => e.preventDefault()}
             onDrop={vm.handleFileDrop}
-            onClick={() => vm.fileInputRef.current?.click()}
-            className={`border-2 border-dashed rounded-3xl p-10 md:p-16 flex flex-col items-center justify-center transition-all group cursor-pointer w-full bg-slate-900/30 ${vm.file ? "border-cyan-500/50 bg-cyan-950/10 shadow-[0_0_30px_rgba(6,182,212,0.1)]" : "border-slate-700 hover:border-slate-500 hover:bg-slate-800/30"}`}
+            onClick={() =>
+              !vm.isLoadingSample && vm.fileInputRef.current?.click()
+            }
+            className={`border-2 border-dashed rounded-3xl p-10 md:p-16 flex flex-col items-center justify-center transition-all group w-full bg-slate-900/30 ${vm.isLoadingSample ? "opacity-50 cursor-not-allowed border-slate-800" : "cursor-pointer"} ${vm.file ? "border-cyan-500/50 bg-cyan-950/10 shadow-[0_0_30px_rgba(6,182,212,0.1)]" : "border-slate-700 hover:border-slate-500 hover:bg-slate-800/30"}`}
           >
             <input
               type="file"
@@ -162,8 +164,12 @@ export function ScannerTab({ vm }: { vm: any }) {
               <button
                 type="button"
                 onClick={vm.handleLoadSample}
-                className="mt-8 px-5 py-2.5 bg-slate-950 hover:bg-slate-800 text-cyan-400 text-sm font-bold rounded-xl border border-slate-800 transition-colors z-10 shadow-sm cursor-pointer shadow-black/50"
+                disabled={vm.isLoadingSample}
+                className="mt-8 px-5 py-2.5 bg-slate-950 hover:bg-slate-800 text-cyan-400 text-sm font-bold rounded-xl border border-slate-800 transition-colors z-10 shadow-sm cursor-pointer shadow-black/50 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >
+                {vm.isLoadingSample && (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                )}
                 {vm.t("use_sample")}
               </button>
             )}

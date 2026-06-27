@@ -31,6 +31,7 @@ export function useAppViewModel() {
   const [file, setFile] = useState<File | null>(null);
   const [fileContent, setFileContent] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
+  const [isLoadingSample, setIsLoadingSample] = useState(false);
   const [scanResult, setScanResult] = useState<ScanResult | null>(null);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -165,6 +166,7 @@ export function useAppViewModel() {
 
   const handleFileDrop = (e: React.DragEvent) => {
     e.preventDefault();
+    if (isLoadingSample) return;
     if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
       setFile(e.dataTransfer.files[0]);
     }
@@ -172,6 +174,9 @@ export function useAppViewModel() {
 
   const handleLoadSample = async (e: React.MouseEvent) => {
     e.stopPropagation();
+    if (isLoadingSample) return;
+
+    setIsLoadingSample(true);
     try {
       const response = await fetch(api.getSampleUrl());
       if (!response.ok) throw new Error();
@@ -186,6 +191,8 @@ export function useAppViewModel() {
       toast.success(t("sample_loaded"));
     } catch {
       toast.error(t("error"));
+    } finally {
+      setIsLoadingSample(false);
     }
   };
 
@@ -233,6 +240,7 @@ export function useAppViewModel() {
     setFile,
     fileContent,
     uploading,
+    isLoadingSample,
     scanResult,
     fileInputRef,
     toggleLanguage,
