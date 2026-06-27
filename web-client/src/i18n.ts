@@ -1,0 +1,64 @@
+import i18n from "i18next";
+import { initReactI18next } from "react-i18next";
+
+const resources = {
+  en: {
+    translation: {
+      title: "Nexus3D Dashboard",
+      robot_registration: "Robot Registration",
+      name: "Robot Name",
+      status: "Status",
+      location: "Location",
+      register: "Register Robot",
+      upload_scan: "Point Cloud Scan Upload",
+      drag_drop: "Drag & drop your .xyz file here, or click to browse",
+      process: "Process Cloud Data",
+      results: "Analysis Results",
+      ai_report: "AI Technical Report",
+      valid_points: "Valid Data Points",
+      s3_url: "S3 Storage URL",
+      language: "JA",
+      success: "Successfully registered!",
+      error: "Operation failed.",
+      proceed: "Proceed",
+      stop: "Stop",
+      anomaly: "Anomaly Detected",
+      no_anomaly: "Normal Status",
+    },
+  },
+  ja: {
+    translation: {
+      title: "Nexus3D ダッシュボード",
+      robot_registration: "ロボット登録",
+      name: "ロボット名",
+      status: "ステータス",
+      location: "場所",
+      register: "ロボットを登録",
+      upload_scan: "点群スキャンアップロード",
+      drag_drop: "ここにファイルをドラッグ＆ドロップ、またはクリックして参照",
+      process: "クラウドデータを処理",
+      results: "分析結果",
+      ai_report: "AI技術レポート",
+      valid_points: "有効なデータポイント",
+      s3_url: "S3ストレージURL",
+      language: "EN",
+      success: "登録に成功しました！",
+      error: "操作に失敗しました。",
+      proceed: "進行する",
+      stop: "停止",
+      anomaly: "異常検出",
+      no_anomaly: "正常なステータス",
+    },
+  },
+};
+
+i18n.use(initReactI18next).init({
+  resources,
+  lng: "en",
+  fallbackLng: "en",
+  interpolation: {
+    escapeValue: false,
+  },
+});
+
+export default i18n;

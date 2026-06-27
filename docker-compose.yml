@@ -1,5 +1,3 @@
-version: "3.8"
-
 services:
   db:
     image: postgres:15
@@ -23,6 +21,15 @@ services:
       DATABASE_URL: postgresql://postgres:password@db:5432/nexus3d_db
     depends_on:
       - db
+
+  web:
+    build:
+      context: ./web-client
+    container_name: nexus3d_web
+    ports:
+      - "3000:80"
+    depends_on:
+      - api
 
 volumes:
   postgres_data:
