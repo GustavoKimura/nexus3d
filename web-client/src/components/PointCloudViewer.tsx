@@ -12,7 +12,7 @@ export default function PointCloudViewer({ data }: { data: string }) {
     let count = 0;
 
     for (const line of lines) {
-      if (count >= 15000) break;
+      if (count >= 5000000) break;
       const parts = line.trim().split(/\s+/);
       if (parts.length >= 3) {
         const x = parseFloat(parts[0]);
@@ -50,7 +50,7 @@ export default function PointCloudViewer({ data }: { data: string }) {
             />
           </bufferGeometry>
           <pointsMaterial
-            size={0.15}
+            size={0.01}
             color="#22d3ee"
             transparent
             opacity={0.8}
