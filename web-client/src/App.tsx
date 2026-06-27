@@ -11,6 +11,7 @@ import {
   FileText,
   Database,
 } from "lucide-react";
+import PointCloudViewer from "./components/PointCloudViewer";
 
 interface ScanResult {
   id: number;
@@ -18,6 +19,7 @@ interface ScanResult {
   point_count: number;
   has_anomaly: boolean;
   s3_file_url: string;
+  ai_report?: string;
   created_at: string;
 }
 
@@ -30,6 +32,7 @@ function App() {
   const [robotId, setRobotId] = useState<number | null>(null);
 
   const [file, setFile] = useState<File | null>(null);
+  const [fileContent, setFileContent] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
   const [scanResult, setScanResult] = useState<ScanResult | null>(null);
 
@@ -73,6 +76,8 @@ function App() {
         formData,
       );
       setScanResult(res.data);
+      const text = await file.text();
+      setFileContent(text);
     } catch (error) {
       alert(t("error"));
     } finally {
@@ -209,7 +214,7 @@ function App() {
                 {t("results")}
               </h2>
 
-              <div className="space-y-4">
+              <div className="space-y-6">
                 <div
                   className={`p-4 rounded-xl border flex items-start gap-4 ${scanResult.has_anomaly ? "bg-red-500/10 border-red-500/20" : "bg-emerald-500/10 border-emerald-500/20"}`}
                 >
@@ -223,10 +228,13 @@ function App() {
                       {t("ai_report")}
                     </h3>
                     <p
-                      className={`text-sm ${scanResult.has_anomaly ? "text-red-400" : "text-emerald-400"}`}
+                      className={`text-sm font-medium ${scanResult.has_anomaly ? "text-red-400" : "text-emerald-400"}`}
                     >
-                      {scanResult.has_anomaly ? t("stop") : t("proceed")} —{" "}
-                      {scanResult.has_anomaly ? t("anomaly") : t("no_anomaly")}
+                      {scanResult.ai_report
+                        ? scanResult.ai_report
+                        : scanResult.has_anomaly
+                          ? t("stop") + " — " + t("anomaly")
+                          : t("proceed") + " — " + t("no_anomaly")}
                     </p>
                   </div>
                 </div>
@@ -254,6 +262,15 @@ function App() {
                     </a>
                   </div>
                 </div>
+
+                {fileContent && (
+                  <div className="mt-6 pt-6 border-t border-slate-800">
+                    <h3 className="font-semibold text-slate-200 mb-4">
+                      {t("visualization_3d")}
+                    </h3>
+                    <PointCloudViewer data={fileContent} />
+                  </div>
+                )}
               </div>
             </section>
           )}

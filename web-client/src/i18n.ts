@@ -24,6 +24,7 @@ const resources = {
       stop: "Stop",
       anomaly: "Anomaly Detected",
       no_anomaly: "Normal Status",
+      visualization_3d: "3D Visualization",
     },
   },
   ja: {
@@ -48,6 +49,7 @@ const resources = {
       stop: "停止",
       anomaly: "異常検出",
       no_anomaly: "正常なステータス",
+      visualization_3d: "3D ビジュアライゼーション",
     },
   },
 };

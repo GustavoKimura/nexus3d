@@ -1,5 +1,5 @@
 import os
-import uuid
+import logging
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, Depends, UploadFile, File, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
@@ -7,20 +7,12 @@ from sqlalchemy.orm import Session
 
 from . import models, schemas
 from .database import engine, SessionLocal
+from .services.aws_service import upload_to_s3
+from .services.cloud_proc import process_point_cloud
+from .services.ai_service import generate_technical_report
 
-
-def aws_service_upload(file: UploadFile) -> str:
-    bucket = os.getenv("AWS_BUCKET_NAME", "nexus3d-scans")
-    file_key = f"scans/{uuid.uuid4()}_{file.filename}"
-    return f"https://{bucket}.s3.amazonaws.com/{file_key}"
-
-
-def cloud_proc_analyze(data: bytes) -> dict:
-    return {"point_count": 250000, "has_anomaly": True}
-
-
-def ai_service_generate_report(analysis_data: dict) -> str:
-    return f"Laudo IA: Análise concluída. Dados: {analysis_data}"
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 
 @asynccontextmanager
@@ -50,38 +42,68 @@ def get_db():
 
 @app.post("/robots", response_model=schemas.RobotResponse)
 def create_robot(robot: schemas.RobotCreate, db: Session = Depends(get_db)):
-    db_robot = models.Robot(
-        name=robot.name, status=robot.status, location=robot.location
-    )
-    db.add(db_robot)
-    db.commit()
-    db.refresh(db_robot)
-    return db_robot
+    try:
+        db_robot = models.Robot(
+            name=robot.name, status=robot.status, location=robot.location
+        )
+        db.add(db_robot)
+        db.commit()
+        db.refresh(db_robot)
+        return db_robot
+    except Exception as e:
+        db.rollback()
+        logger.error(f"Erro ao criar robô: {str(e)}", exc_info=True)
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 @app.post("/scans/process/{robot_id}", response_model=schemas.ScanLogResponse)
 def process_scan(
     robot_id: int, file: UploadFile = File(...), db: Session = Depends(get_db)
 ):
-    robot = db.query(models.Robot).filter(models.Robot.id == robot_id).first()
-    if not robot:
-        raise HTTPException(status_code=404, detail="Robot not found")
+    try:
+        robot = db.query(models.Robot).filter(models.Robot.id == robot_id).first()
+        if not robot:
+            raise HTTPException(status_code=404, detail="Robot not found")
 
-    s3_url = aws_service_upload(file)
+        file_content = file.file.read()
 
-    analysis = cloud_proc_analyze(b"mocked point cloud data")
+        filename = file.filename if file.filename else "scan.xyz"
+        s3_url = upload_to_s3(file_content, filename)
 
-    report = ai_service_generate_report(analysis)
+        lines = file_content.decode("utf-8", errors="ignore").splitlines()
+        points = []
+        for line in lines:
+            parts = line.strip().split()
+            if len(parts) >= 3:
+                try:
+                    points.append([float(parts[0]), float(parts[1]), float(parts[2])])
+                except ValueError:
+                    pass
 
-    db_scan = models.ScanLog(
-        robot_id=robot_id,
-        point_count=analysis["point_count"],
-        has_anomaly=analysis["has_anomaly"],
-        s3_file_url=s3_url,
-    )
+        analysis = process_point_cloud(points)
 
-    db.add(db_scan)
-    db.commit()
-    db.refresh(db_scan)
+        report = generate_technical_report(
+            original_count=len(points),
+            valid_count=analysis["valid_points_count"],
+            density=analysis["density"],
+            bounding_box=analysis["limits"],
+        )
+        logger.info(f"Laudo IA Gerado: {report}")
 
-    return db_scan
+        db_scan = models.ScanLog(
+            robot_id=robot_id,
+            point_count=analysis["valid_points_count"],
+            has_anomaly=analysis["anomaly_detected"],
+            s3_file_url=s3_url,
+            ai_report=report,
+        )
+
+        db.add(db_scan)
+        db.commit()
+        db.refresh(db_scan)
+
+        return db_scan
+    except Exception as e:
+        db.rollback()
+        logger.error(f"Erro ao processar scan: {str(e)}", exc_info=True)
+        raise HTTPException(status_code=500, detail=str(e))
