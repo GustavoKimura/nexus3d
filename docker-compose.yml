@@ -21,6 +21,7 @@ services:
       DATABASE_URL: postgresql://postgres:password@db:5432/nexus3d_db
     depends_on:
       - db
+      - minio
 
   web:
     build:
@@ -31,5 +32,19 @@ services:
     depends_on:
       - api
 
+  minio:
+    image: minio/minio
+    container_name: nexus3d_minio
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    command: server /data --console-address ":9001"
+    volumes:
+      - minio_data:/data
+
 volumes:
   postgres_data:
+  minio_data:
