@@ -131,6 +131,13 @@ function App() {
           location: formData.location,
         });
         toast.success(t("update_success"));
+        if (formData.status === "offline" && robotId === formData.id) {
+          setRobotId(null);
+          setScanResult(null);
+          setFile(null);
+          setFileContent(null);
+          setActiveTab("directory");
+        }
       }
       setIsModalOpen(false);
       fetchRobots();
@@ -169,8 +176,12 @@ function App() {
     }
   };
 
-  const handleSelectRobot = (id: number) => {
-    setRobotId(id);
+  const handleSelectRobot = (robot: Robot) => {
+    if (robot.status === "offline") {
+      toast.error(t("robot_offline_warning"));
+      return;
+    }
+    setRobotId(robot.id);
     setActiveTab("scanner");
   };
 
@@ -349,7 +360,7 @@ function App() {
                 {robots.map((robot) => (
                   <div
                     key={robot.id}
-                    onClick={() => handleSelectRobot(robot.id)}
+                    onClick={() => handleSelectRobot(robot)}
                     className={`relative p-5 rounded-2xl border transition-all cursor-pointer group flex flex-col gap-3 ${robotId === robot.id ? "bg-cyan-950/20 border-cyan-500/50 shadow-md shadow-cyan-900/10" : "bg-slate-900/50 border-slate-800 hover:border-slate-700 hover:bg-slate-800/50"}`}
                   >
                     {robotId === robot.id && (
@@ -693,7 +704,7 @@ function App() {
 
       {/* Generic Confirmation Modal */}
       {confirmModal.isOpen && (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+        <div className="fixed inset-0 z-60 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4 animate-in fade-in duration-200">
           <div className="bg-slate-900 border border-slate-800 rounded-3xl w-full max-w-sm shadow-2xl flex flex-col overflow-hidden">
             <div className="p-6 flex flex-col items-center text-center space-y-4">
               <div className="w-16 h-16 bg-red-500/10 rounded-full flex items-center justify-center border border-red-500/20 shrink-0 shadow-[0_0_15px_rgba(239,68,68,0.2)]">

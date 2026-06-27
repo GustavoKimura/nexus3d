@@ -20,20 +20,30 @@ def generate_technical_report(
     client = OpenAI(api_key=api_key)
     lang_instruction = "English" if language == "en" else "Japanese"
 
+    loss_percentage = (
+        ((original_count - valid_count) / original_count * 100)
+        if original_count > 0
+        else 0
+    )
+    max_bound = bounding_box.get("max")
+    max_z = max_bound[2] if max_bound and len(max_bound) >= 3 else 0.0
+
     prompt = (
-        f"3D Scan Metrics:\n"
-        f"- Original points: {original_count}\n"
-        f"- Valid points (post-cleanup): {valid_count}\n"
-        f"- Density: {density:.4f}\n"
-        f"- Bounds: Min {bounding_box.get('min')} | Max {bounding_box.get('max')}\n"
-        f"Based on this density and point loss (noise), provide a short engineering analysis (max 1 line) evaluating the scan integrity. Respond in {lang_instruction}."
+        f"You are a Senior Data Quality Inspector for 3D LiDAR surveying. Analyze the following telemetry data from a surveying robot. "
+        f"Original points collected: {original_count}. "
+        f"Valid points after noise reduction filtering: {valid_count}. "
+        f"Loss rate: {loss_percentage:.2f}%. "
+        f"Max terrain height (Z): {max_z:.4f}. "
+        f"Write a strict, concise technical report (maximum 2 sentences) assessing the viability of this scan for generating a Digital Twin. "
+        f"Use professional surveying terminology. Evaluate if the noise loss is acceptable and state if the data is approved for 3D modeling. "
+        f"Return the text strictly in {lang_instruction}."
     )
 
     try:
         response = client.chat.completions.create(
             model="gpt-4o",
             messages=[{"role": "user", "content": prompt}],
-            max_tokens=100,
+            max_tokens=150,
         )
         content = response.choices[0].message.content
         return content.strip() if content else "Report not generated."

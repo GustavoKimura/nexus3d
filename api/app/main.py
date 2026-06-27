@@ -61,7 +61,7 @@ def cleanup_temp_file(path: str):
 @app.get("/sample")
 def get_sample_file(background_tasks: BackgroundTasks):
     fd, temp_path = tempfile.mkstemp(suffix=".xyz")
-    num_points = 250000
+    num_points = 100000
     shape_type = random.choice(["sphere", "torus", "cube"])
 
     with os.fdopen(fd, "w") as f:

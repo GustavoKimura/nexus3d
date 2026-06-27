@@ -50,10 +50,10 @@ export default function PointCloudViewer({ data }: { data: string }) {
             />
           </bufferGeometry>
           <pointsMaterial
-            size={0.035}
+            size={0.02}
             color="#22d3ee"
             transparent
-            opacity={0.9}
+            opacity={0.8}
             sizeAttenuation
           />
         </points>
